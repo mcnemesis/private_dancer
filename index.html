@@ -130,27 +130,27 @@
           var music_params = {
               dubstep : {
                   generator : dubstep_generator,
-                  music : 'music/Benga - Pleasure.mp3'
+                  music : 'music/Benga - Pleasure.ogg'
               },
               hiphop : {
                   generator : hiphop_generator,
-                  music : 'music/Chingy Ft. Three 6 Mafia - Club Getting Crowded.mp3'
+                  music : 'music/Chingy Ft. Three 6 Mafia - Club Getting Crowded.ogg'
               },
               techno : {
                   generator : techno_generator,
-                  music : 'music/Computer Song.mp3'
+                  music : 'music/Computer Song.ogg'
               },
               classical : {
                   generator : classical_generator,
-                  music : 'music/1876 Grieg- Morning, from Peer Gynt.mp3'
+                  music : 'music/1876 Grieg- Morning, from Peer Gynt.ogg'
               },
               ragga : {
                   generator : ragga_generator,
-                  music : 'music/Raga raga-Red plastic.mp3'
+                  music : 'music/Raga raga-Red plastic.ogg'
               },
               hardstyle : {
                   generator : hardstyle_generator,
-                  music : 'music/headhunterz - Last of the mohicans.mp3'
+                  music : 'music/headhunterz - Last of the mohicans.ogg'
               }
           }
 
@@ -159,7 +159,7 @@
           dancer = new SpectralDancer(512, 10, context, default_limb_structure, posture, music_params[$.QueryString['style'] || 'dubstep'].generator, 300);
           dancer.setValidPoints(10);
 
-          // Load MP3
+          // Load ogg
           audio = new RemoteAudioPlayer(context,music_params[$.QueryString['style'] || 'dubstep'].music);
           audio.load(function() {
             $('#play').text("Play");
