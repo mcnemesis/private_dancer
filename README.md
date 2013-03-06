@@ -4,6 +4,9 @@ Private Dancer
 Hey nerd, when was the last time you went surfing for that dance?
 
 Or how would you like to see a robot challenge your moves on that favorite track of yours?
+
+Take Me to the Dance Floor!
+----------------------------
 Checkout the superstar [here][1]
 
 Credits
@@ -22,9 +25,9 @@ it was limiting to webkit, it offered the missing link I wanted.
 Probably someone has done this kind of thing elsewhere before, but hell, it was a thrill building mine too ;-)
 Fork and let's get these bits grooving...
 
-[1] https://github.com/mcnemesis/private_dancer  "Demo Page" 
-[2] https://github.com/0xfe/experiments/tree/master/www/wavebox "WaveBox"
-[3] http://www.w3.org/TR/webaudio/ "Web Audio"
-[4] https://wiki.mozilla.org/Audio_Data_API#Working_Audio_Data_Demos "Mozilla WebAudio Demos"
+[1]: https://github.com/mcnemesis/private_dancer  "Demo Page" 
+[2]: https://github.com/0xfe/experiments/tree/master/www/wavebox "WaveBox"
+[3]: http://www.w3.org/TR/webaudio/ "Web Audio"
+[4]: https://wiki.mozilla.org/Audio_Data_API#Working_Audio_Data_Demos "Mozilla WebAudio Demos"
 
 
