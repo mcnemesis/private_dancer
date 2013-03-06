@@ -1,7 +1,7 @@
 Private Dancer
 ======
 
-Hey nerd, when was the last time you went surfing for that dance?
+When was the last time you went surfing for that dance?
 
 Or how would you like to see a robot challenge your moves on that favorite track of yours?
 
