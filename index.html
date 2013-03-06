@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Nemesis Fixx [joewillrich (AT) gmail.com]">
+    <meta name="keywords" content="Virtual Dancer,Private Dancer,WebAudio,Visualization,FFT">
+    <meta name="projectrepo" content="https://github.com/mcnemesis/private_dancer" >
+    <meta name="project" content="Private Dancer">
+        <title>dancer</title>
+        <style>
+            body {
+              background: white;
+              font-family: 'Marvel', sans-serif;
+              font-size: 18px;
+              color: black;
+              margin: auto 0px;
+            }
+
+            a { text-decoration: none; color: black; border-bottom: dotted #999999 1px }
+            a:link {text-decoration: none; color: black; }
+            a:visited {text-decoration: none; color: black; }
+            a:active {text-decoration: none; color: black; }
+            a:hover {text-decoration: none; color: black; border-bottom: dotted red 2px; }
+
+
+            h1 { font-family: "Aldrich", cursive; font-weight: bold; font-size: 36px;}
+
+            a#play {
+              font-family: "Aldrich", cursive;
+              font-size: 26px; padding: 10px;
+              background: #cccccc;
+              border-bottom: none;
+              color: black;
+            }
+            a#play:hover {text-decoration: none; color: black;
+              border-bottom: solid red 2px; }
+
+            #fftbox, #wavebox {
+              width: 600;
+              height: 100;
+            }
+
+            #canvasbox {
+              width: 600px;
+            }
+
+            #play {
+                z-index : 99999;
+            }
+        </style>
+
+        <script src="js/d3.min.js"> </script>
+
+          <script src="wavebox/js/support/jquery-1.6.2.min.js"></script>
+          <script src="wavebox/js/spectrum.js"></script>
+          <script src="wavebox/js/remoteaudioplayer.js"></script>
+
+          <script src="js/spectral_dancer.js"></script>
+          <script src="js/jquery-queryparams.js"></script>
+          <script src="js/generators.js"></script>
+
+        <link href="http://fonts.googleapis.com/css?family=Aldrich|Marvel" rel="stylesheet" type="text/css">
+
+        <script>
+        var context;
+
+        var frequencybox;
+        var wavebox;
+        var dancer;
+        var audio;
+
+        var default_limb_structure = {
+            head : { width : "220px", height: "200px", left : '175px', zindex : 1000 },
+            thorax : { width : "135px", height: "200px", left: '225px', top: '200px', zindex : 900 },
+            leftarm : { width : "225px", height: "225px", left: '20px', top: '200px' , zindex : 800},
+            rightarm : { width : "245px", height: "225px", right: '20px' , top: '200px', zindex : 700},
+            leftleg : { width : "100px", height: "225px", top: '360px', left: '200px', zindex : 600},
+            rightleg : { width : "110px", height: "225px",top : '360px', right:'200px', zindex : 500},
+        };
+
+        var posture = function (limb_structure) {
+                d3.select('#dancer').style('position', 'relative')
+                .style('width','600px')
+                .style('height','650px')
+                .style('margin-left','auto')
+                .style('margin-right','auto')
+                .style('margin-top','3%')
+
+                var limbs = d3.selectAll("div.limb");
+                limbs.transition().style("background-image",function(d,i){
+                    return "url(images/limbs/" + d3.select(this).attr('id') + ".png)";
+                }) .style('height',function(d,i){ return limb_structure[d3.select(this).attr('id')].height; })
+                .style('width',function(d,i){ return limb_structure[d3.select(this).attr('id')].width; })
+                .style('bottom',function(d,i){ return limb_structure[d3.select(this).attr('id')].bottom; })
+                .style('top',function(d,i){ return limb_structure[d3.select(this).attr('id')].top; })
+                .style('left',function(d,i){ return limb_structure[d3.select(this).attr('id')].left; })
+                .style('right',function(d,i){ return limb_structure[d3.select(this).attr('id')].right; })
+                .style('-webkit-transform',function(d,i){ return limb_structure[d3.select(this).attr('id')].transform ; })
+                .style('-ms-transform',function(d,i){ return limb_structure[d3.select(this).attr('id')].transform ; })
+                .style('-o-transform',function(d,i){ return limb_structure[d3.select(this).attr('id')].transform ; })
+                .style('transform',function(d,i){ return limb_structure[d3.select(this).attr('id')].transform ; })
+                .style('-moz-transform',function(d,i){ return limb_structure[d3.select(this).attr('id')].transform ; })
+                .style('z-index',function(d,i){ return limb_structure[d3.select(this).attr('id')].zindex; })
+                .style('background-repeat','no-repeat')
+                .style('position','absolute')
+                .style('clear','both')
+
+        }
+
+        function random_bit() {
+            return Number(Math.random().toFixed());
+        }
+
+
+        function initialize() {
+          context = new webkitAudioContext();
+
+          // Setup frequency domain graph
+          frequencybox = new SpectrumBox(2048, 30, "fftbox", context);
+          frequencybox.setValidPoints(500);
+          frequencybox.getCanvasContext().fillStyle = "rgb(150, 150, 150)";
+
+          // Setup time domain graph
+          wavebox = new SpectrumBox(2048, 1000, "wavebox", context);
+          wavebox.setType(SpectrumBox.Types.TIME);
+          wavebox.getCanvasContext().fillStyle = "rgb(0, 0, 0)";
+
+          //Configure how each genre of music is to be grooved to
+          //NOTE: YOU NEED TO POINT THE 'music' PARAMS TO ACTUAL MUSIC FILES (I didn't include mine in the repo for obvious reasons)
+          var music_params = {
+              dubstep : {
+                  generator : dubstep_generator,
+                  music : 'music/Benga - Pleasure.mp3'
+              },
+              hiphop : {
+                  generator : hiphop_generator,
+                  music : 'music/Chingy Ft. Three 6 Mafia - Club Getting Crowded.mp3'
+              },
+              techno : {
+                  generator : techno_generator,
+                  music : 'music/Computer Song.mp3'
+              },
+              classical : {
+                  generator : classical_generator,
+                  music : 'music/1876 Grieg- Morning, from Peer Gynt.mp3'
+              },
+              ragga : {
+                  generator : ragga_generator,
+                  music : 'music/Raga raga-Red plastic.mp3'
+              },
+              hardstyle : {
+                  generator : hardstyle_generator,
+                  music : 'music/headhunterz - Last of the mohicans.mp3'
+              }
+          }
+
+
+          // Setup spectral dancer...
+          dancer = new SpectralDancer(512, 10, context, default_limb_structure, posture, music_params[$.QueryString['style'] || 'dubstep'].generator, 300);
+          dancer.setValidPoints(10);
+
+          // Load MP3
+          audio = new RemoteAudioPlayer(context,music_params[$.QueryString['style'] || 'dubstep'].music);
+          audio.load(function() {
+            $('#play').text("Play");
+            $('#play').click(play);
+          });
+        }
+
+        function play() {
+          var source = audio.getSource();
+          var wavenode = wavebox.getAudioNode();
+          var frequencynode = frequencybox.getAudioNode();
+          var dancernode = dancer.getAudioNode();
+
+          // Route audio , dancer and graphs
+          source.connect(frequencynode);
+          frequencynode.connect(wavenode)
+          wavenode.connect(dancernode);
+          dancernode.connect(context.destination);
+
+          // Play audio
+          audio.reload();
+          source.noteOn(0);
+
+          // Enable graphs
+          wavebox.enable();
+          frequencybox.enable();
+          dancer.enable();
+
+          $('#play').text("Stop");
+          $('#play').click(stop);
+        }
+
+        function stop() {
+          // Disable graphs
+          wavebox.disable();
+          frequencybox.disable();
+          dancer.disable();
+          audio.getSource().disconnect();
+
+          $('#play').text("Play");
+          $('#play').click(play);
+        }
+
+        $(function() { initialize(); });
+
+        </script>
+    </head>
+    <body>
+        <center>
+        <div>
+            <a href="?style=dubstep">dubstep</a> . <a href="?style=techno">techno</a> . <a href="?style=classical">classical</a> . <a href="?style=hardstyle">hardstyle</a> . <a href="?style=ragga">ragga</a> . <a href="?style=hiphop">hiphop</a>  
+            <a href="#" id="play">Loading...</a>
+        </div>
+        <div id="dancer">
+            <div id="head" class="limb"></div>
+            <div id="thorax" class="limb"></div>
+            <div id="leftarm" class="limb"></div>
+            <div id="rightarm" class="limb"></div>
+            <div id="leftleg" class="limb"></div>
+            <div id="rightleg" class="limb"></div>
+
+            <div id="boxes" class="boxes">
+              <div id="canvasbox">
+                <canvas id="fftbox" width=600 height=100></canvas>
+                <canvas id="wavebox" width=600 height=100></canvas>
+              </div>
+            </div>
+        </div>
+        <div>
+            Private Dancer is built and mantained by <a href="https://github.com/mcnemesis/private_dancer">Nemesis Fixx</a> (and extends the incredible work of 0xFE <a href="https://github.com/0xfe/experiments/tree/master/www/wavebox">here</a>).
+            <br/>
+            NOTE :  
+                <li>You can clone the repo onto your box and edit the music_params to point to music files on your machine or on the internet.</li>
+                <li>You need the latest Chrome or Safari to enjoy this (or you can port it to your browser of choice)
+        </div>
+    </body>
+</html>
