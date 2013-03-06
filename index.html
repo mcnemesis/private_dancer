@@ -156,11 +156,11 @@
 
 
           // Setup spectral dancer...
-          dancer = new SpectralDancer(512, 10, context, default_limb_structure, posture, music_params[$.QueryString['style'] || 'dubstep'].generator, 300);
+          dancer = new SpectralDancer(512, 10, context, default_limb_structure, posture, music_params[$.QueryString['style'] || 'techno'].generator, 300);
           dancer.setValidPoints(10);
 
           // Load ogg
-          audio = new RemoteAudioPlayer(context,music_params[$.QueryString['style'] || 'dubstep'].music);
+          audio = new RemoteAudioPlayer(context,music_params[$.QueryString['style'] || 'techno'].music);
           audio.load(function() {
             $('#play').text("Play");
             $('#play').click(play);
