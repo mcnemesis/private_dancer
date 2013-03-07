@@ -6,7 +6,7 @@
     <meta name="keywords" content="Virtual Dancer,Private Dancer,WebAudio,Visualization,FFT">
     <meta name="projectrepo" content="https://github.com/mcnemesis/private_dancer" >
     <meta name="project" content="Private Dancer">
-        <title>dancer</title>
+        <title>Private Dancer</title>
         <style>
             body {
               background: white;
@@ -21,6 +21,8 @@
             a:visited {text-decoration: none; color: black; }
             a:active {text-decoration: none; color: black; }
             a:hover {text-decoration: none; color: black; border-bottom: dotted red 2px; }
+            a.selected {text-decoration: none; color: black; border-bottom: dotted red 2px; }
+            .branding { font-weight : bold; font-size : 20px }
 
 
             h1 { font-family: "Aldrich", cursive; font-weight: bold; font-size: 36px;}
@@ -155,12 +157,18 @@
           }
 
 
+          var defaultStyle = 'techno';
+
+          $('a.style').filter(function(i){
+              return $(this).attr('href').match(RegExp($.QueryString['style'] || defaultStyle)) ? true : false;
+          }).addClass('selected');
+
           // Setup spectral dancer...
-          dancer = new SpectralDancer(512, 10, context, default_limb_structure, posture, music_params[$.QueryString['style'] || 'techno'].generator, 300);
+          dancer = new SpectralDancer(512, 10, context, default_limb_structure, posture, music_params[$.QueryString['style'] || defaultStyle].generator, 300);
           dancer.setValidPoints(10);
 
           // Load ogg
-          audio = new RemoteAudioPlayer(context,music_params[$.QueryString['style'] || 'techno'].music);
+          audio = new RemoteAudioPlayer(context,music_params[$.QueryString['style'] || defaultStyle].music);
           audio.load(function() {
             $('#play').text("Play");
             $('#play').click(play);
@@ -210,8 +218,9 @@
     <body>
         <center>
         <div>
-            <a href="?style=dubstep">dubstep</a> . <a href="?style=techno">techno</a> . <a href="?style=classical">classical</a> . <a href="?style=hardstyle">hardstyle</a> . <a href="?style=ragga">ragga</a> . <a href="?style=hiphop">hiphop</a>  
-            <a href="#" id="play">Loading...</a>
+            <span class="branding">Private Dancer</span> |
+            <a href="?style=dubstep" class="style">dubstep</a> . <a href="?style=techno" class="style">techno</a> . <a href="?style=classical" class="style">classical</a> . <a href="?style=hardstyle" class="style">hardstyle</a> . <a href="?style=ragga" class="style">ragga</a> . <a href="?style=hiphop" class="style">hiphop</a>  
+            <a href="#" id="play" >Loading...</a>
         </div>
         <div id="dancer">
             <div id="head" class="limb"></div>
