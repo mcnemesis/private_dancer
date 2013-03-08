@@ -117,7 +117,7 @@ SpectralDancer.prototype.disable = function() {
     window.clearInterval(this.intervalId);
     this.intervalId = undefined;
   }
-  this.posture(this.default_limb_structure); //return dancer to the default stroke ;-)
+  this.posture(this.default_limb_structure,0); //return dancer to the default stroke ;-)
   return this;
 }
 
@@ -150,6 +150,6 @@ SpectralDancer.prototype.update = function() {
 
     //Update the Dancer...
     if(average >= 0)
-        this.posture(this.stroke_generator(this.clone(this.default_limb_structure), average));
+        this.posture(this.stroke_generator(this.clone(this.default_limb_structure), average),average);
   }
 }

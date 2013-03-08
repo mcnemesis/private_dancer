@@ -114,6 +114,7 @@ SpectrumBox.prototype.update = function() {
   // Clear canvas then redraw graph.
   this.ctx.clearRect(0, 0, this.width, this.height);
 
+  var max = 1;
   // Break the samples up into bins
   var bin_size = Math.floor(length / this.num_bins);
   for (var i=0; i < this.num_bins; ++i) {
@@ -124,11 +125,19 @@ SpectrumBox.prototype.update = function() {
 
     // Calculate the average frequency of the samples in the bin
     var average = sum / bin_size;
+    max = Math.max(average,max);
 
     // Draw the bars on the canvas
     var bar_width = this.width / this.num_bins;
     var scaled_average = (average / 256) * this.height;
 
+    var color = "rgb(" 
+        + Math.floor(255 * (1 - i/this.num_bins)) + "," 
+        + Math.floor(255 * (average/max || 1)) + "," 
+        + Math.floor(255 * ((i/this.num_bins))) + ")";
+
+    this.ctx.fillStyle = color;
+    this.ctx.strokeStyle = color;
     if (this.type == SpectrumBox.Types.FREQUENCY) {
       this.ctx.fillRect(
         i * bar_width, this.height,
